@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { FeedbackOptions } from './Feedback/FeedbackOptions';
 import { Statistic } from './Statistic/Statistic';
 import { Layout } from './App.styled';
@@ -6,40 +6,40 @@ import Section from './Section/Section';
 import { Notification } from './Notification/Notification';
 
 export const App = () => {
-  const [state, setState] = useState({
-    good: 0,
-    neutral: 0,
-    bad: 0,
-  });
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
 
-  const onLeaveFeedback = useCallback(option => {
-    setState(prevState => ({ ...prevState, [option]: prevState[option] + 1 }));
-  }, []);
+  const onLeaveFeedback = feedback => {
+    switch (feedback) {
+      case 'good':
+        setGood(prevState => prevState + 1);
+        break;
 
-  const countTotalFeedback = () => {
-    const { good, neutral, bad } = state;
-    return good + neutral + bad;
+      case 'neutral':
+        setNeutral(prevState => prevState + 1);
+        break;
+
+      case 'bad':
+        setBad(prevState => prevState + 1);
+        break;
+
+      default:
+        return;
+    }
   };
+
+  const countTotalFeedback = () => good + neutral + bad;
 
   const countPositiveFeedbackPercentage = () => {
-    const { good } = state;
     return Math.round((good / countTotalFeedback()) * 100);
   };
-
-  // useEffect(() => {
-  //   const total = countTotalFeedback();
-  //   const positivePercentage = countPositiveFeedbackPercentage();
-  // }, [state]);
-
-  const { good, neutral, bad } = state;
-  const total = countTotalFeedback();
-  const positivePercentage = countPositiveFeedbackPercentage();
 
   return (
     <Layout>
       <Section title="Please leave feedback">
         <FeedbackOptions
-          options={Object.keys(state)}
+          options={['good', 'neutral', 'bad']}
           onLeavefeedback={onLeaveFeedback}
         />
       </Section>
@@ -52,8 +52,8 @@ export const App = () => {
             good={good}
             neutral={neutral}
             bad={bad}
-            total={total}
-            positivePercentage={positivePercentage}
+            total={countTotalFeedback()}
+            positivePercentage={countPositiveFeedbackPercentage()}
           />
         )}
       </Section>
